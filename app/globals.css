@@ -1,0 +1,60 @@
+/* add Tailwind base styles, components, and utilities */
+@import "tailwindcss";
+
+/*
+  The default border color has changed to `currentColor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentColor);
+  }
+
+  input[type="search"]::-webkit-search-decoration,
+  input[type="search"]::-webkit-search-cancel-button,
+  input[type="search"]::-webkit-search-results-button,
+  input[type="search"]::-webkit-search-results-decoration {
+    display: none;
+  }
+
+  body {
+    background: #e9e9e9;
+  }
+
+  a {
+    text-decoration: underline;
+  }
+
+  .visual-builder__empty-block-title {
+    display: none;
+  }
+
+  .header {
+    backdrop-filter: blur(6px);
+  }
+
+  .richtext-content {
+    p {
+      margin-bottom: 1rem;
+    }
+  }
+
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+@theme inline {
+  --font-sans: var(--font-inter);
+}
