@@ -1,6 +1,4 @@
 import { notFound } from "next/navigation";
-import { QueryOperation } from "@contentstack/delivery-sdk";
-import { stack } from "../../../lib/contentstack";
 
 type GiftSet = {
   title: string;
@@ -11,22 +9,36 @@ type GiftSet = {
   product_lines?: { uid: string; title: string }[];
 };
 
+async function getGiftSet(slug: string): Promise<GiftSet | undefined> {
+  const params = new URLSearchParams({
+    environment: process.env.NEXT_PUBLIC_CONTENTSTACK_ENVIRONMENT!,
+  });
+  params.append("query", JSON.stringify({ url: `/gift-sets/${slug}` }));
+  params.append("include[]", "products");
+  params.append("include[]", "product_lines");
+
+  const res = await fetch(
+    `https://cdn.contentstack.io/v3/content_types/gift_set/entries?${params}`,
+    {
+      headers: {
+        api_key: process.env.NEXT_PUBLIC_CONTENTSTACK_API_KEY!,
+        access_token: process.env.NEXT_PUBLIC_CONTENTSTACK_DELIVERY_TOKEN!,
+      },
+      next: { revalidate: 1800 },
+    }
+  );
+
+  const data = await res.json();
+  return data.entries?.[0];
+}
+
 export default async function GiftSetPage({
   params,
 }: {
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-
-  const result = await stack
-    .contentType("gift_set")
-    .entry()
-    .addParams({ include_all: true, include_all_depth: 1 })
-    .query()
-    .where("url", QueryOperation.EQUALS, `/gift-sets/${slug}`)
-    .find<GiftSet>();
-
-  const giftSet = result.entries?.[0];
+  const giftSet = await getGiftSet(slug);
   if (!giftSet) notFound();
 
   return (
@@ -36,7 +48,9 @@ export default async function GiftSetPage({
       {giftSet.gift_message && <p className="italic">{giftSet.gift_message}</p>}
       <ul>
         {giftSet.products?.map((p) => (
-          <li key={p.uid}><a href={p.url}>{p.title}</a></li>
+          <li key={p.uid}>
+            <a href={p.url}>{p.title}</a>
+          </li>
         ))}
       </ul>
     </main>
