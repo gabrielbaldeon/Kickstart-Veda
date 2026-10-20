@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { QueryOperation } from "@contentstack/delivery-sdk";
-import { stack } from "@/lib/contentstack"; // ajusta al import que usen tus otros archivos
+import { stack } from "../../../lib/contentstack";
 
 type GiftSet = {
   title: string;
